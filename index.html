@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b2e">
+  <meta name="description" content="第六周消费可视化：分类占比、常去商家与逐笔明细。">
+  <title>第六周消费 · 可视化账本</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23101b2e'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%238be0d0' stroke-width='8' stroke-dasharray='77 37' transform='rotate(-90 32 32)'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%23f6c96f'/%3E%3C/svg%3E">
+  <style>
+    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#172337;background:#f4f6f9;font-synthesis:none}
+    *{box-sizing:border-box}
+    body{margin:0;min-width:320px}
+    button{font:inherit}
+    .wrap{max-width:1180px;margin:auto;padding:28px 26px 70px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:11px;font-size:1.12rem;font-weight:750;letter-spacing:.02em}
+    .brandmark{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#102039;color:#99ebd8;font-size:1.15rem}
+    .period{border:1px solid #d9e1ea;background:#fff;border-radius:999px;padding:7px 14px;color:#536477;font-size:.9rem;font-weight:650}
+    .hero{background:#101b2e;color:white;border-radius:24px;padding:35px 38px;display:grid;grid-template-columns:1.35fr 1fr;gap:30px;position:relative;overflow:hidden;box-shadow:0 15px 32px rgba(18,31,50,.12)}
+    .hero:after{content:"";position:absolute;width:280px;height:280px;border:1px solid rgba(142,230,212,.12);border-radius:50%;right:-75px;top:-150px;box-shadow:0 0 0 48px rgba(142,230,212,.035),0 0 0 96px rgba(142,230,212,.025);pointer-events:none}
+    .eyebrow{color:#a2b2c7;font-size:.93rem;font-weight:600;letter-spacing:.04em}
+    .hero-total{font-size:clamp(3rem,6vw,4.85rem);font-variant-numeric:tabular-nums;letter-spacing:-.06em;font-weight:760;line-height:1.08;margin:16px 0 15px;white-space:nowrap}
+    .hero-total .yen{font-size:.45em;vertical-align:top;line-height:1.6;margin-right:5px;letter-spacing:0;color:#8be0d0}
+    .hero-note{color:#b5c2d0;font-size:.96rem;line-height:1.6}
+    .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-self:end;z-index:1}
+    .hero-stat{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.045);border-radius:16px;padding:17px 18px;min-height:94px}
+    .hero-stat span{display:block;color:#aab9c9;font-size:.86rem;margin-bottom:9px}
+    .hero-stat strong{font-size:1.35rem;font-variant-numeric:tabular-nums;line-height:1.1}
+    .hero-stat small{font-size:.8rem;color:#aab9c9;margin-left:4px;font-weight:500}
+    .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:18px}
+    .card{background:#fff;border:1px solid #e4eaf0;border-radius:22px;padding:25px 27px;box-shadow:0 5px 22px rgba(31,48,72,.025)}
+    .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:21px}
+    h1,h2,p{margin-top:0}
+    h2{font-size:1.2rem;letter-spacing:-.02em;margin-bottom:0}
+    .minor{color:#8190a0;font-size:.84rem}
+    .category-body{display:grid;grid-template-columns:minmax(205px,1fr) 1.1fr;gap:16px;align-items:center}
+    .donut{width:min(100%,250px);aspect-ratio:1;border-radius:50%;margin:auto;display:grid;place-items:center;position:relative;transition:background .25s}
+    .donut:before{content:"";position:absolute;inset:18%;background:#fff;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.6)}
+    .donut-center{z-index:1;text-align:center;display:grid;gap:5px}
+    .donut-center span{font-size:.86rem;color:#758395}
+    .donut-center strong{font-size:1.62rem;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+    .donut-center small{font-size:.8rem;color:#8d9aab}
+    .legend{display:grid;gap:5px}
+    .legend button{border:0;background:transparent;border-radius:10px;display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:10px;text-align:left;padding:8px 9px;color:#435168;cursor:pointer;min-width:0}
+    .legend button:hover,.legend button.active{background:#f2f6fa}
+    .dot{width:9px;height:9px;border-radius:50%}
+    .legend .name{font-size:.91rem;white-space:nowrap}
+    .legend .value{font-size:.91rem;font-weight:700;color:#233148;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .legend .pct{font-size:.79rem;color:#8a98a7;margin-left:5px;font-weight:500}
+    .merchant-list{display:grid;gap:17px;margin-top:5px}
+    .merchant-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px}
+    .merchant-name{font-size:.94rem;font-weight:620;color:#354258}
+    .merchant-amount{font-size:.93rem;font-weight:750;font-variant-numeric:tabular-nums}
+    .track{height:9px;border-radius:99px;background:#edf1f5;overflow:hidden}
+    .fill{height:100%;border-radius:99px;background:#85dccc}
+    .merchant-item:first-child .fill{background:#f6c96f}
+    .merchant-item:nth-child(2) .fill{background:#93a9ef}
+    .merchant-item:nth-child(3) .fill{background:#f4a98c}
+    .merchant-item:nth-child(4) .fill{background:#85dccc}
+    .merchant-item:nth-child(5) .fill{background:#b8a7e9}
+    .records{margin-top:18px}
+    .records-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:17px}
+    .record-count{color:#8190a0;font-size:.88rem;margin-left:8px;font-weight:500}
+    .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:17px}
+    .filter{border:1px solid #dfe6ee;background:#fff;color:#596a7d;border-radius:999px;padding:7px 13px;min-height:35px;font-size:.88rem;cursor:pointer;transition:.18s}
+    .filter:hover{border-color:#8595a9;color:#24344b}
+    .filter.active{border-color:#14253e;background:#14253e;color:#fff}
+    .table-head,.record{display:grid;grid-template-columns:58px minmax(100px,1.2fr) minmax(90px,.85fr) minmax(98px,.75fr);align-items:center;gap:12px}
+    .table-head{color:#94a1af;font-size:.8rem;border-bottom:1px solid #e8edf2;padding:0 10px 12px}
+    .table-head div:last-child{text-align:right}
+    .record{padding:13px 10px;border-bottom:1px solid #eef2f5;min-height:51px;font-size:.94rem}
+    .record:last-child{border-bottom:0}
+    .record .num{color:#a2aebb;font-size:.81rem;font-variant-numeric:tabular-nums}
+    .record .item{font-weight:570}
+    .record .cat{color:#6d7b8b;font-size:.88rem}
+    .record .amount{text-align:right;font-weight:680;font-variant-numeric:tabular-nums}
+    .empty{padding:40px 0;text-align:center;color:#7c8999}
+    .note{color:#7d8b9b;font-size:.81rem;margin:18px 4px 0;line-height:1.6}
+    @media(max-width:880px){.hero{grid-template-columns:1fr}.hero-stats{max-width:530px}.grid{grid-template-columns:1fr}.category-body{grid-template-columns:minmax(200px,.8fr) 1fr}}
+    @media(max-width:620px){.wrap{padding:17px 14px 40px}.topbar{margin-bottom:16px}.hero{padding:27px 23px;border-radius:20px;gap:23px}.hero-total{font-size:clamp(2.8rem,11vw,4rem)}.hero-stats{gap:9px}.hero-stat{padding:14px;min-height:83px}.hero-stat strong{font-size:1.1rem}.card{padding:20px 17px;border-radius:19px}.category-body{grid-template-columns:1fr;gap:16px}.donut{width:218px}.legend{grid-template-columns:1fr 1fr;gap:2px}.legend button{grid-template-columns:9px 1fr;gap:6px;padding:8px 6px}.legend .value{grid-column:2}.legend .pct{margin-left:3px}.table-head,.record{grid-template-columns:minmax(105px,1fr) 72px 91px;gap:5px}.table-head>div:first-child,.record .num{display:none}.record{padding:12px 4px}.record .cat{font-size:.82rem}.records-heading{margin-bottom:12px}.period{font-size:.79rem;padding:6px 10px}.brand{font-size:1rem}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div class="brand"><span class="brandmark" aria-hidden="true">◔</span><span>消费账本</span></div>
+      <div class="period">第六周 · 22 笔记录</div>
+    </header>
+    <section class="hero" aria-label="消费总览">
+      <div>
+        <div class="eyebrow">第六周总支出</div>
+        <div class="hero-total"><span class="yen">¥</span><span id="total">975.73</span></div>
+        <div class="hero-note">餐饮是最大支出项，占本周消费的 <strong id="foodShare">78.2%</strong>。</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span>消费笔数</span><strong id="entryCount">22</strong><small>笔</small></div>
+        <div class="hero-stat"><span>最大单笔</span><strong id="largestAmount">¥102.00</strong><small id="largestName">烧烤</small></div>
+      </div>
+    </section>
+    <div class="grid">
+      <section class="card" aria-labelledby="category-title">
+        <div class="section-head"><h2 id="category-title">花在了哪里</h2><span class="minor">按用途分类</span></div>
+        <div class="category-body">
+          <div class="donut" id="donut" role="img" aria-label="消费分类占比"><div class="donut-center"><span id="donutLabel">餐饮</span><strong id="donutValue">¥763.14</strong><small id="donutPercent">78.2%</small></div></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </section>
+      <section class="card" aria-labelledby="merchant-title">
+        <div class="section-head"><h2 id="merchant-title">支出最多的项目</h2><span class="minor">前 5 名</span></div>
+        <div class="merchant-list" id="merchantList"></div>
+      </section>
+    </div>
+    <section class="card records" aria-labelledby="records-title">
+      <div class="records-heading"><h2 id="records-title">逐笔明细 <span class="record-count" id="visibleCount">22 笔</span></h2></div>
+      <div class="filters" id="filters" aria-label="按分类筛选明细"></div>
+      <div class="table-head" aria-hidden="true"><div>序号</div><div>项目</div><div>分类</div><div>金额</div></div>
+      <div id="recordList"></div>
+    </section>
+    <p class="note">按提供的顺序展示。原始记录没有日期，因此不显示每日消费趋势。</p>
+  </main>
+  <script>
+    const rows = [
+      [7560,'水','饮水'],[5264,'眼药水','医疗健康'],[10200,'烧烤','餐饮'],[2500,'挂号费','医疗健康'],
+      [1480,'洗衣服','生活服务'],[3200,'袁记云饺','餐饮'],[1040,'瑞幸','餐饮'],[667,'卫生','生活服务'],
+      [5410,'麦当劳','餐饮'],[4904,'顺风大酒店','餐饮'],[4356,'乡村基','餐饮'],[4100,'巡湘记','餐饮'],
+      [4400,'袁记云饺','餐饮'],[4300,'老乡鸡','餐饮'],[5110,'大米先生','餐饮'],[6430,'德克士','餐饮'],
+      [2308,'支架','日用品'],[1480,'洗衣','生活服务'],[4480,'凉菜','餐饮'],[3070,'披萨','餐饮'],
+      [5114,'乡村基','餐饮'],[10200,'酸菜鱼','餐饮']
+    ];
+    const palette = {'餐饮':'#6ccfbc','医疗健康':'#f39f84','饮水':'#77bde0','生活服务':'#b8a7e9','日用品':'#f5c66a'};
+    const money = cents => '¥' + (cents/100).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const total = rows.reduce((sum,row)=>sum+row[0],0);
+    const categoryTotals = Object.entries(rows.reduce((out,[amount,,category])=>(out[category]=(out[category]||0)+amount,out),{})).sort((a,b)=>b[1]-a[1]);
+    const merchantTotals = Object.entries(rows.reduce((out,[amount,name])=>(out[name]=(out[name]||0)+amount,out),{})).sort((a,b)=>b[1]-a[1]);
+    const largest = rows.reduce((best,row)=>row[0]>best[0]?row:best,rows[0]);
+    document.getElementById('total').textContent=(total/100).toLocaleString('zh-CN',{minimumFractionDigits:2});
+    document.getElementById('foodShare').textContent=(categoryTotals.find(([name])=>name==='餐饮')[1]/total*100).toFixed(1)+'%';
+    document.getElementById('entryCount').textContent=rows.length;
+    document.getElementById('largestAmount').textContent=money(largest[0]);
+    document.getElementById('largestName').textContent=largest[1];
+    document.querySelector('.period').textContent='第六周 · '+rows.length+' 笔记录';
+    let running=0;
+    const stops=categoryTotals.map(([name,amount])=>{const start=running;running+=amount/total*100;return `${palette[name]} ${start.toFixed(3)}% ${running.toFixed(3)}%`});
+    const donut=document.getElementById('donut');
+    donut.style.background=`conic-gradient(${stops.join(',')})`;
+    donut.setAttribute('aria-label',categoryTotals.map(([name,amount])=>`${name} ${money(amount)}，${(amount/total*100).toFixed(1)}%`).join('；'));
+    const showCategory=(name,amount)=>{
+      document.getElementById('donutLabel').textContent=name;
+      document.getElementById('donutValue').textContent=money(amount);
+      document.getElementById('donutPercent').textContent=(amount/total*100).toFixed(1)+'%';
+      document.querySelectorAll('.legend button').forEach(button=>button.classList.toggle('active',button.dataset.category===name));
+    };
+    const legend=document.getElementById('legend');
+    categoryTotals.forEach(([name,amount])=>{
+      const button=document.createElement('button');
+      button.type='button';button.dataset.category=name;
+      button.innerHTML=`<span class="dot" style="background:${palette[name]}"></span><span class="name">${name}</span><span class="value">${money(amount)} <span class="pct">${(amount/total*100).toFixed(1)}%</span></span>`;
+      button.addEventListener('click',()=>showCategory(name,amount));
+      legend.appendChild(button);
+    });
+    showCategory(...categoryTotals[0]);
+    const merchantList=document.getElementById('merchantList');
+    merchantTotals.slice(0,5).forEach(([name,amount])=>{
+      const item=document.createElement('div');item.className='merchant-item';
+      item.innerHTML=`<div class="merchant-top"><span class="merchant-name">${name}</span><span class="merchant-amount">${money(amount)}</span></div><div class="track"><div class="fill" style="width:${(amount/merchantTotals[0][1]*100).toFixed(1)}%"></div></div>`;
+      merchantList.appendChild(item);
+    });
+    const filters=document.getElementById('filters');
+    const recordList=document.getElementById('recordList');
+    let selected='全部';
+    const renderRecords=()=>{
+      const shown=rows.map((row,index)=>({row,index})).filter(({row})=>selected==='全部'||row[2]===selected);
+      document.getElementById('visibleCount').textContent=shown.length+' 笔';
+      recordList.replaceChildren();
+      shown.forEach(({row,index})=>{
+        const item=document.createElement('div');item.className='record';
+        item.innerHTML=`<span class="num">${String(index+1).padStart(2,'0')}</span><span class="item"></span><span class="cat"></span><span class="amount">${money(row[0])}</span>`;
+        item.querySelector('.item').textContent=row[1];item.querySelector('.cat').textContent=row[2];
+        recordList.appendChild(item);
+      });
+      document.querySelectorAll('.filter').forEach(button=>{const active=button.dataset.category===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
+    };
+    ['全部',...categoryTotals.map(([name])=>name)].forEach(name=>{
+      const button=document.createElement('button');button.type='button';button.className='filter';button.dataset.category=name;button.textContent=name;
+      button.addEventListener('click',()=>{selected=name;renderRecords()});filters.appendChild(button);
+    });
+    renderRecords();
+  </script>
+</body>
+</html>
