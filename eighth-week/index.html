@@ -85,16 +85,16 @@
   <main class="wrap">
     <header class="topbar">
       <div class="brand"><span class="brandmark" aria-hidden="true">◔</span><span>消费账本</span></div>
-      <div class="period">第八周 · 29 笔记录</div>
+      <div class="period">第八周 · 27 笔记录</div>
     </header>
     <section class="hero" aria-label="消费总览">
       <div>
         <div class="eyebrow">第八周总支出</div>
-        <div class="hero-total"><span class="yen">¥</span><span id="total">896.65</span></div>
-        <div class="hero-note">餐饮是最大支出项，占本周消费的 <strong id="foodShare">80.7%</strong>。</div>
+        <div class="hero-total"><span class="yen">¥</span><span id="total">837.20</span></div>
+        <div class="hero-note">餐饮是最大支出项，占本周消费的 <strong id="foodShare">85.1%</strong>。</div>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><span>消费笔数</span><strong id="entryCount">29</strong><small>笔</small></div>
+        <div class="hero-stat"><span>消费笔数</span><strong id="entryCount">27</strong><small>笔</small></div>
         <div class="hero-stat"><span>最大单笔</span><strong id="largestAmount">¥67.00</strong><small id="largestName">阵痛露</small></div>
       </div>
     </section>
@@ -102,7 +102,7 @@
       <section class="card" aria-labelledby="category-title">
         <div class="section-head"><h2 id="category-title">花在了哪里</h2><span class="minor">按用途分类</span></div>
         <div class="category-body">
-          <div class="donut" id="donut" role="img" aria-label="消费分类占比"><div class="donut-center"><span id="donutLabel">餐饮</span><strong id="donutValue">¥723.78</strong><small id="donutPercent">80.7%</small></div></div>
+          <div class="donut" id="donut" role="img" aria-label="消费分类占比"><div class="donut-center"><span id="donutLabel">餐饮</span><strong id="donutValue">¥712.33</strong><small id="donutPercent">85.1%</small></div></div>
           <div class="legend" id="legend"></div>
         </div>
       </section>
@@ -112,7 +112,7 @@
       </section>
     </div>
     <section class="card records" aria-labelledby="records-title">
-      <div class="records-heading"><h2 id="records-title">逐笔明细 <span class="record-count" id="visibleCount">29 笔</span></h2></div>
+      <div class="records-heading"><h2 id="records-title">逐笔明细 <span class="record-count" id="visibleCount">27 笔</span></h2></div>
       <div class="filters" id="filters" aria-label="按分类筛选明细"></div>
       <div class="table-head" aria-hidden="true"><div>序号</div><div>项目</div><div>分类</div><div>金额</div></div>
       <div id="recordList"></div>
@@ -120,7 +120,7 @@
     <p class="note">按提供的顺序展示。原始记录没有日期，因此不显示每日消费趋势。</p>
   </main>
   <script>
-    const rows = [[1145, '牛肉干', '餐饮'], [4800, '眼药水', '医疗健康'], [3200, '袁记云饺', '餐饮'], [667, '卫生', '生活服务'], [4420, '老乡鸡', '餐饮'], [4370, '霸王茶姬', '餐饮'], [1490, '麦当劳', '餐饮'], [3200, '袁记云饺', '餐饮'], [6700, '阵痛露', '医疗健康'], [4440, '老乡鸡', '餐饮'], [3640, '窗帘', '日用品'], [3920, '老乡鸡', '餐饮'], [4590, 'KFC', '餐饮'], [2920, '猪排饭', '餐饮'], [700, '麦当劳', '餐饮'], [2964, '炒饭', '餐饮'], [2500, '袁记云饺', '餐饮'], [4270, '咖喱饭', '餐饮'], [3340, '冰淇淋', '餐饮'], [2251, '喜茶', '餐饮'], [500, '洗衣', '生活服务'], [980, '烘干', '生活服务'], [3020, '小杨生煎', '餐饮'], [2562, '新疆菜', '餐饮'], [1340, '烤包子', '餐饮'], [6690, '避风塘', '餐饮'], [2500, '咖喱饭', '餐饮'], [4746, '饺子', '餐饮'], [1800, '奶茶', '餐饮']];
+    const rows = [[3200, '袁记云饺', '餐饮'], [667, '卫生', '生活服务'], [4420, '老乡鸡', '餐饮'], [4370, '霸王茶姬', '餐饮'], [1490, '麦当劳', '餐饮'], [3200, '袁记云饺', '餐饮'], [6700, '阵痛露', '医疗健康'], [4440, '老乡鸡', '餐饮'], [3640, '窗帘', '日用品'], [3920, '老乡鸡', '餐饮'], [4590, 'KFC', '餐饮'], [2920, '猪排饭', '餐饮'], [700, '麦当劳', '餐饮'], [2964, '炒饭', '餐饮'], [2500, '袁记云饺', '餐饮'], [4270, '咖喱饭', '餐饮'], [3340, '冰淇淋', '餐饮'], [2251, '喜茶', '餐饮'], [500, '洗衣', '生活服务'], [980, '烘干', '生活服务'], [3020, '小杨生煎', '餐饮'], [2562, '新疆菜', '餐饮'], [1340, '烤包子', '餐饮'], [6690, '避风塘', '餐饮'], [2500, '咖喱饭', '餐饮'], [4746, '饺子', '餐饮'], [1800, '奶茶', '餐饮']];
     const palette = {'餐饮':'#6ccfbc','医疗健康':'#f39f84','饮水':'#77bde0','生活服务':'#b8a7e9','日用品':'#f5c66a'};
     const money = cents => '¥' + (cents/100).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
     const total = rows.reduce((sum,row)=>sum+row[0],0);
